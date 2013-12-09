@@ -6,7 +6,6 @@
 shp2pgsql -s 2154:4326 -W "LATIN1" -g geometrie IGN\GeoFLA_2013\COMMUNE.SHP communes_geofla2013 | psql -d openfla -U postgres
 # DOMs
 shp2pgsql -s 2975:4326 -W "LATIN1" -g geometrie GEOFLA_1-1_SHP_RGR92UTM40S_D974-ED121\COMMUNES\COMMUNE.SHP communes_geofla2013_reunion | psql -d openfla -U postgres
-shp2pgsql -s 2975:4326 -W "LATIN1" -g geometrie GEOFLA_1-1_SHP_RGR92UTM40S_D974-ED121\COMMUNES\COMMUNE.SHP communes_geofla2013_reunion | psql -d openfla -U postgres
 shp2pgsql -s 2973:4326 -W "LATIN1" -g geometrie GEOFLA_1-1_SHP_UTM20W84_D971-ED121\COMMUNES\COMMUNE.SHP communes_geofla2013_guadeloupe | psql -d openfla -U postgres
 shp2pgsql -s 2973:4326 -W "LATIN1" -g geometrie GEOFLA_1-1_SHP_UTM20W84_D972-ED121\COMMUNES\COMMUNE.SHP communes_geofla2013_martinique | psql -d openfla -U postgres
 shp2pgsql -s 2973:4326 -W "LATIN1" -g geometrie GEOFLA_1-1_SHP_UTM22RGFG95_D973-ED121\COMMUNES\COMMUNE.SHP communes_geofla2013_guyane | psql -d openfla -U postgres
