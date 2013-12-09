@@ -1,0 +1,253 @@
+<!DOCTYPE Map[
+      <!ENTITY typedate SYSTEM "typedate.inc">
+      <!ENTITY dateinc SYSTEM "dateinc.inc">
+      <!ENTITY extent SYSTEM "extent.inc">
+      <!ENTITY texte_date SYSTEM "texte_date.inc">
+      <!ENTITY db_settings SYSTEM "db.inc">
+]>
+<!-- Sample Mapnik XML template by Dane Springmeyer -->
+<Map srs="+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs" background-color="white" minimum-version="0.7.2">
+  
+<!-- Fond des departements sans contour -->
+  <Style name="background">
+     <Rule>
+      <Filter>([dept_demarre]=0)</Filter>
+      <PolygonSymbolizer fill="#000000"/>
+      <LineSymbolizer stroke="white" stroke-width=".1"/>
+     </Rule> 
+     <Rule>
+      <Filter>([dept_demarre]=1)</Filter>
+      <PolygonSymbolizer fill="#333333"/>
+      <LineSymbolizer stroke="white" stroke-width=".1"/>
+     </Rule> 
+   </Style>
+ <!-- communes saisies avant le mois courant -->
+	<Style name="style_epoques">
+		<Rule>
+            <Filter>([valdate]=5)</Filter>
+			<PolygonSymbolizer fill="#CCFFCC"/>
+<!--			<LineSymbolizer stroke="white" stroke-width=".1"/-->
+		</Rule>
+		<Rule>
+            <Filter>([valdate]=4)</Filter>
+			<PolygonSymbolizer fill="yellow"/>
+			<LineSymbolizer stroke="white" stroke-width=".3"/>
+		</Rule>
+		<Rule>
+            <Filter>([valdate]=3)</Filter>
+			<PolygonSymbolizer fill="#85FF85"/>
+			<LineSymbolizer stroke="yellow" stroke-width=".5"/>
+		</Rule> 
+		<Rule>
+            <Filter>([valdate]=2)</Filter>
+			<PolygonSymbolizer fill="#47B247"/>
+			<LineSymbolizer stroke="orange" stroke-width="1"/>
+		</Rule> 
+		<Rule>
+            <Filter>([valdate]=1)</Filter>
+			<PolygonSymbolizer fill="#47B247"/>
+			<LineSymbolizer stroke="red" stroke-width="2"/>
+		</Rule> 
+	</Style>
+	<Style name="style_100pct">
+		<Rule>
+            <Filter>([valdate]=1)</Filter>
+<!--			<PolygonSymbolizer fill="#CCFFCC"/-->
+			<LineSymbolizer stroke="red" stroke-width="1"/>
+		</Rule>
+		<Rule>
+            <Filter>([valdate]=2)</Filter>
+<!--			<PolygonSymbolizer fill="#CCFFCC"/-->
+			<LineSymbolizer stroke="white" stroke-width="1"/>
+		</Rule>
+		<Rule>
+            <Filter>([valdate]=3)</Filter>
+<!--			<PolygonSymbolizer fill="#FFFF4D"/-->
+			<PolygonSymbolizer fill="#66FF66"/>
+			<LineSymbolizer stroke="#444444" stroke-width="1"/>
+		</Rule>
+	</Style>
+	<Style name="text_dept_fin">
+		<Rule>
+            <Filter>([type_date]=1)</Filter>
+			<TextSymbolizer 
+				face-name="DejaVu Sans Condensed Bold"
+				size="15"
+				fill="grey"
+				halo-fill="white"
+				halo-radius="1"
+				horizontal-alignment="middle"
+				placement="point"
+				placement-type="simple"
+				placements="X">[code_dept]
+			</TextSymbolizer>
+		</Rule> 
+		<Rule>
+            <Filter>([type_date]=2)</Filter>
+			<TextSymbolizer 
+				face-name="DejaVu Sans Condensed Bold"
+				size="12"
+				fill="#444444"
+				halo-fill="white"
+				halo-radius="1"
+				horizontal-alignment="middle"
+				placement="point"
+				placement-type="simple"
+				placements="X">[code_dept]
+			</TextSymbolizer>
+		</Rule> 
+		<Rule>
+            <Filter>([type_date]=3)</Filter>
+			<TextSymbolizer 
+				face-name="DejaVu Sans Book"
+				size="12"
+				fill="black"
+				horizontal-alignment="middle"
+				placement="point"
+				placement-type="simple"
+				placements="X">[code_dept]
+			</TextSymbolizer>
+		</Rule> 
+	</Style>
+		<Style name="texte_date">
+		<Rule>
+			<TextSymbolizer 
+				face-name="DejaVu Sans Mono Book"
+				size="20"
+				fill="black"
+				horizontal-alignment="left"
+				placement="point"
+				placement-type="simple"
+				placements="X">[jour]
+			</TextSymbolizer>
+		</Rule> 
+	</Style>
+	<Style name="texte_stats">
+		<Rule>
+			<TextSymbolizer 
+				face-name="DejaVu Sans Bold"
+				size="20"
+				fill="black"
+				horizontal-alignment="left"
+				placement="point"
+				placement-type="simple"
+				placements="X">[stats]
+			</TextSymbolizer>
+		</Rule> 
+	</Style>
+<Layer name="fond" srs="+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs" status="on">
+    <!-- Style order determines layering hierarchy -->
+    <!-- Labels go on top so they are listed second -->
+    <StyleName>background</StyleName>
+    <Datasource>
+		&db_settings;
+      <Parameter name="table">(SELECT  
+	  CASE
+		WHEN &dateinc; &lt; dateinc_debut THEN 0
+		ELSE 1
+	END dept_demarre,
+	geometrie::geometry(MultiPolygon,2154) as geometrie
+FROM	fla_dept_date
+) a</Parameter>
+      <Parameter name="geometry_field">geometrie</Parameter>
+      <Parameter name="estimate_extent">false</Parameter>
+      <Parameter name="extent">&extent;</Parameter>
+	</Datasource>
+  </Layer>
+ <Layer name="communes" srs="+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs" status="on">
+    <!-- Style order determines layering hierarchy -->
+    <!-- Labels go on top so they are listed second -->
+    <StyleName>style_epoques</StyleName>
+    <Datasource>
+ 		&db_settings;
+      <Parameter name="table">(SELECT 
+	CASE 
+		WHEN (&dateinc; - d.dateinc_100pct &gt; 0) THEN 4
+		WHEN (&dateinc; = c.dateinc) THEN 1
+		WHEN (&dateinc; - c.dateinc = 1) THEN 1
+		WHEN (&dateinc; - c.dateinc) BETWEEN 2 AND 10 THEN 2
+		WHEN (&dateinc; - c.dateinc) BETWEEN 10 AND 50 THEN 3
+		WHEN (&dateinc; - c.dateinc &gt; 50) THEN 4
+		ELSE 0
+	END 	valdate,
+	c.geometrie::geometry(MultiPolygon,2154) as geometrie
+FROM	fla_communes_date c
+JOIN	fla_dept_date d
+ON		c.code_dept = d.code_dept) a
+ </Parameter>
+      <Parameter name="geometry_field">geometrie</Parameter>
+      <Parameter name="estimate_extent">false</Parameter>
+      <Parameter name="extent">&extent;</Parameter>
+	</Datasource>
+  </Layer>
+  <Layer name="dept_100pct" srs="+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs" status="on">
+    <!-- Style order determines layering hierarchy -->
+    <!-- Labels go on top so they are listed second -->
+    <StyleName>style_100pct</StyleName>
+    <Datasource>
+ 		&db_settings;
+      <Parameter name="table">(SELECT 
+	CASE
+		WHEN (&dateinc; = dateinc_100pct) THEN 1
+		WHEN (&dateinc; - dateinc_100pct = 1) THEN 2
+		WHEN (&dateinc; - dateinc_100pct = 2) THEN 1
+		WHEN (&dateinc; - dateinc_100pct = 3) THEN 2
+		WHEN (&dateinc; - dateinc_100pct &gt; 3) THEN 3
+		ELSE 0
+	END 	valdate,
+	geometrie::geometry(MultiPolygon,2154) as geometrie
+FROM	fla_dept_date
+ORDER BY dateinc_100pct) a
+ </Parameter>
+      <Parameter name="geometry_field">geometrie</Parameter>
+      <Parameter name="estimate_extent">false</Parameter>
+      <Parameter name="extent">&extent;</Parameter>
+	</Datasource>
+  </Layer>
+<Layer name="dept_debut" srs="+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs" status="on">
+    <!-- Style order determines layering hierarchy -->
+    <!-- Labels go on top so they are listed second -->
+    <StyleName>text_dept_fin</StyleName>
+    <Datasource>
+ 		&db_settings;
+      <Parameter name="table">(SELECT  
+		code_dept,
+		CASE
+			WHEN (&dateinc; - dateinc_100pct) BETWEEN 0 AND 10 THEN 1
+			WHEN (&dateinc; - dateinc_100pct) BETWEEN 10 AND 15 THEN 2
+			WHEN (&dateinc; - dateinc_100pct &gt; 15 AND code_dept not in ('75','92','93','94')) THEN 3
+			ELSE 0
+		END type_date,
+	geometrie::geometry(MultiPolygon,2154) as geometrie
+FROM	fla_dept_date)a
+ </Parameter>
+      <Parameter name="geometry_field">geometrie</Parameter>
+      <Parameter name="estimate_extent">false</Parameter>
+      <Parameter name="extent">&extent;</Parameter>
+	</Datasource>
+  </Layer>
+  <Layer name="texte_date" srs="+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs" status="on">
+    <!-- Style order determines layering hierarchy -->
+    <!-- Labels go on top so they are listed second -->
+    <StyleName>texte_date</StyleName>
+    <Datasource>
+ 		&db_settings;
+      <Parameter name="table">(SELECT ST_SetSRID(ST_Point(1250000,7050000),2154)::geometry(Point,2154) as geometrie,&texte_date;::text jour) a</Parameter>
+      <Parameter name="geometry_field">geometrie</Parameter>
+      <Parameter name="estimate_extent">false</Parameter>
+      <Parameter name="extent">&extent;</Parameter>
+	</Datasource>
+  </Layer>
+<Layer name="texte_stats" srs="+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs" status="on">
+    <!-- Style order determines layering hierarchy -->
+    <!-- Labels go on top so they are listed second -->
+    <StyleName>texte_stats</StyleName>
+    <Datasource>
+ 		&db_settings;
+      <Parameter name="table">(SELECT ST_SetSRID(ST_Point(1250000,7000000),2154)::geometry(Point,2154) as geometrie,(SELECT count(*) FROM fla_communes_date WHERE dateinc-1 &lt; &dateinc;)::text stats) a</Parameter>
+      <Parameter name="geometry_field">geometrie</Parameter>
+      <Parameter name="estimate_extent">false</Parameter>
+      <Parameter name="extent">&extent;</Parameter>
+	</Datasource>
+  </Layer>
+</Map>
